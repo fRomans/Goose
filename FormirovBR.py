@@ -6,10 +6,12 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pingouin as pg
 
+import BR
 
-print(__import__('BR').__class__.cg)
 
 
+zastup_smen = BR.BoevRasch.fff
+print(zastup_smen)
 
 
 
