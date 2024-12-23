@@ -35,7 +35,8 @@ else:
 
 # меняю NaN на '+'
 all_sm = all_sm.fillna('+')
-# print(all_sm.shape[0])
+print(all_sm.shape[0])
+print('______________с больными и ком')
 
 
 # посты для бр общее число постов
@@ -45,10 +46,13 @@ posts_for_br = [str(elem).replace(" ", "") for elem in posts_for_br ]
 # print(posts_for_br)
 
 
-
 # удаляю  коммандировочных и больных
 index_names = all_sm[ (all_sm['статус'] == 'б') | (all_sm['статус'] == 'к')].index
 all_sm.drop(index_names, inplace = True)
+bez_bk_all_sm = all_sm
+print(bez_bk_all_sm.shape[0])
+print('______________без больных и ком')
+
 
 
 
@@ -56,7 +60,7 @@ all_sm.drop(index_names, inplace = True)
 # all_sm['пост'] = str(all_sm['пост']).replace(" ", "")
 # print(all_sm['пост'])
 # поле "пост" превращаю в массив и привожу к виду 'БП5x-02-03'
-all_sm['пост'] = all_sm.пост.apply(lambda x: x[0:].replace(" ", "").split(','))
+bez_bk_all_sm['пост'] = bez_bk_all_sm.пост.apply(lambda x: x[0:].replace(" ", "").split(','))
 # all_sm['пост'].replace(" ", "")
 
 # print(all_sm['пост'])
@@ -66,7 +70,7 @@ all_sm['пост'] = all_sm.пост.apply(lambda x: x[0:].replace(" ", "").spli
 
 # совмещаю df-ы, чтобы не портить all_sm
 # стало   = было
-br_all_sm = all_sm
+br_all_sm = bez_bk_all_sm
 posts     = posts_for_br
 
 
@@ -79,7 +83,8 @@ posts     = posts_for_br
 
 # br_all_sm['пост'] = [elem for elem in br_all_sm['пост'] if str(elem).strip()]
 # br_all_sm['пост'] = [elem for elem in br_all_sm['пост'] if str(elem).replace(" ", "")]
-# print(br_all_sm['пост'])
+print(br_all_sm.shape[0])
+print('--------------------------------------------------------------------- приступаю')
 # ------------------------------------------------------------------------------------------
 
 
@@ -89,23 +94,31 @@ posts     = posts_for_br
 # порядок прохождения по сменам зависит от номера заступающей смены
 
 # создаю новый df для формирования бр
-new_br = pd.DataFrame(columns = ['фио', 'пост', 'смена1', 'смена2'])
-print(all_sm.shape[0])
-print('------------------------')
+new_br = pd.DataFrame(columns = ['фио', 'пост смена1', 'пост смена2'])
+# print('------------------------')
 count = 0
-for ind_br_all_sm, znach_br_all_sm in br_all_sm.iterrows():
+for ind_nomer_br,nomer_br in enumerate(posts):
     # print(index)
     # print(znach_br_all_sm['фио'])
-    for ind_posts,n_br in enumerate(posts):
-        for pchela in znach_br_all_sm['пост']:
-            if pchela in n_br:
-                count+=1
-                print(n_br+ "--- "+ pchela)
-                print(str(ind_br_all_sm) +" индекс всего БР")
-                print(str(ind_posts) + " индекс всех постов")
-                # br_all_sm.drop(ind)
-                print(count)
-                break
-        del posts[ind_posts]
-        break
+    for ind_br_all_sm, znach_br_all_sm in br_all_sm.iterrows():
+        succ = False
+
+        for dopysk_chela in znach_br_all_sm['пост']:
+                if dopysk_chela in nomer_br:
+                    count+=1
+                    new_br['фио'] = pd.Series(znach_br_all_sm['фио'])
+                    new_br['пост смена1'] = pd.Series(nomer_br)
+                    # print(nomer_br + "--- " + dopysk_chela)
+                    # print(str(ind_br_all_sm) +" индекс всего БР")
+                    # print(str(ind_nomer_br) + " индекс всех постов")
+                    # br_all_sm.drop(ind)
+                    print(new_br)
+                    # del posts[ind_nomer_br]
+                    br_all_sm.drop(ind_br_all_sm, inplace=True)
+                    succ = True
+                    break
+        if succ == True:
+            break
+
+
 
